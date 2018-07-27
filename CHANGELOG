@@ -1,0 +1,9 @@
+Version 1.0.1 (tag v1.0.1)
+
+* Workaround for an apparent mistranslation of the code in the Clang/LLVM compilation
+  toolchain of macOS Sierra 16.6.0, pointed out by Jacob Alperin-Sheriff.
+
+----------------------------
+Version 1.0 (tag v1.0)
+
+* Original submission to NIST

@@ -2,7 +2,7 @@
  *
  * <encrypt.c>
  *
- * @version 1.0 (September 2017)
+ * @version 1.0.1 (July 2018)
  *
  * Reference ISO-C99 Implementation of LEDAkem cipher" using GCC built-ins.
  *
@@ -73,10 +73,14 @@ int crypto_encrypt_open( unsigned char *m, unsigned long long *mlen,
    AES_XOF_struct mceliece_keys_expander;
    seedexpander_from_trng(&mceliece_keys_expander,
                           ((privateKeyMcEliece_t *) sk)->prng_seed);
+   /* Workaround to allow correct translation in Clang/LLVM stock in macOS 
+    * Sierra 16.6.0 */
+   unsigned int tmp;
    if ( decrypt_Kobara_Imai(m,
-                            (unsigned int *)mlen,
+                            &tmp,
                             &mceliece_keys_expander,
                             c) == 1 ) {
+      *mlen=tmp;
       return 0;
    }
    return -1;
