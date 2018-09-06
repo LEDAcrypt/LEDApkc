@@ -90,10 +90,6 @@
 
 /*----------------------------------------------------------------------------*/
 
-
-
-/*----------------------------------------------------------------------------*/
-
 static inline void gf2x_copy(DIGIT dest[], const DIGIT in[])
 {
    for (int i = NUM_DIGITS_GF2X_ELEMENT-1; i >= 0; i--)
@@ -276,3 +272,47 @@ void gf2x_mod_mul_dense_to_sparse(DIGIT Res[],
                                   const DIGIT dense[],
                                   POSITION_T sparse[],
                                   unsigned int nPos);
+/*----------------------------------------------------------------------------*/
+static inline
+int partition (POSITION_T arr[], int lo, int hi)
+{
+   POSITION_T x = arr[hi];
+   POSITION_T tmp;
+   int i = (lo - 1);
+   for (int j = lo; j <= hi - 1; j++)  {
+      if (arr[j] <= x) {
+         i++;
+         tmp = arr[i];
+         arr[i] = arr[j];
+         arr[j] = tmp;
+      }
+   }
+   tmp = arr[i+1];
+   arr[i+1] = arr[hi];
+   arr[hi] = tmp;
+
+   return i+1;
+} // end partition
+/*----------------------------------------------------------------------------*/
+static inline
+void quicksort(POSITION_T Res[], unsigned int sizeR)
+{
+   /* sort the result */
+   int stack[sizeR];
+   int hi, lo, pivot, tos = -1;
+   stack[++tos] = 0;
+   stack[++tos] = sizeR-1;
+   while (tos >=0 ) {
+      hi = stack[tos--];
+      lo = stack[tos--];
+      pivot = partition(Res, lo, hi);
+      if ( (pivot-1) > lo) {
+         stack[++tos] = lo;
+         stack[++tos] = pivot-1;
+      }
+      if ( (pivot + 1) < hi) {
+         stack[++tos] = pivot+1;
+         stack[++tos] = hi;
+      }
+   }
+}

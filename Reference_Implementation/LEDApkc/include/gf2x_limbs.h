@@ -29,6 +29,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  **/
+
 #pragma once
 
 /*----------------------------------------------------------------------------*/
@@ -87,7 +88,7 @@ typedef CAT( uint, CPU_WORD_BITS, _t ) DIGIT;
 #endif
 
 #define DIGIT_SIZE_b  (DIGIT_SIZE_B << 3)
-#define    POSITION_T uint32_t
 
+#define    POSITION_T uint32_t
 /*----------------------------------------------------------------------------*/
 

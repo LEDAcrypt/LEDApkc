@@ -1,3 +1,12 @@
+Version 1.0.2 (tag v1.0.2)
+
+* Fixed decoding bug, unelicited by submission parameters.
+
+* Fixed sparse multiplication bug, unelicited by submission parameters.
+
+* Cosmetic realignments to the codebase of the KEM for common files
+
+----------------------------
 Version 1.0.1 (tag v1.0.1)
 
 * Workaround for an apparent mistranslation of the code in the Clang/LLVM compilation

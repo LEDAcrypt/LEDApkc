@@ -4,7 +4,7 @@
  *
  * @version 1.0 (September 2017)
  *
- * Reference ISO-C99 Implementation of LEDAkem cipher" using GCC built-ins.
+ * Reference ISO-C99 Implementation of LEDApkc cipher" using GCC built-ins.
  *
  * In alphabetical order:
  *
@@ -34,9 +34,9 @@
 #include "qc_ldpc_parameters.h"
 #include "gf2x_limbs.h"
 #include "rng.h"
-
-
 /*----------------------------------------------------------------------------*/
+
+
 /* Used in keypair generation and decryption */
 void generateHtrPosOnes(POSITION_T HtrPosOnes[N0][DV],
                         POSITION_T HPosOnes[N0][DV],

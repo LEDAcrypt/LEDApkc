@@ -2,9 +2,9 @@
  *
  * <gf2x_arith_mod_xPplusOne.c>
  *
- * @version 1.0 (September 2017)
+ * @version 1.0.2 (September 2018)
  *
- * Reference ISO-C99 Implementation of LEDAkem cipher" using GCC built-ins.
+ * Reference ISO-C99 Implementation of LEDApkc cipher" using GCC built-ins.
  *
  * In alphabetical order:
  *
@@ -132,6 +132,7 @@ void right_bit_shift_n(const int length, DIGIT in[], const int amount)
 /*----------------------------------------------------------------------------*/
 
 /* PRE: MAX ALLOWED ROTATION AMOUNT : DIGIT_SIZE_b */
+
 void left_bit_shift_n(const int length, DIGIT in[], const int amount)
 {
    assert(amount < DIGIT_SIZE_b);
@@ -148,7 +149,7 @@ void left_bit_shift_n(const int length, DIGIT in[], const int amount)
 
 /*----------------------------------------------------------------------------*/
 /* shifts by whole digits */
-static inline
+
 void left_DIGIT_shift_n(const int length, DIGIT in[], int amount)
 {
    int j;
@@ -370,9 +371,9 @@ int gf2x_mod_inverse(DIGIT out[], const DIGIT in[])     /* in^{-1} mod x^P-1 */
    int i;
    long int delta = 0;
    DIGIT u[NUM_DIGITS_GF2X_ELEMENT] = {0},
-                                      v[NUM_DIGITS_GF2X_ELEMENT] = {0},
-                                            s[NUM_DIGITS_GF2X_MODULUS] = {0},
-                                                  f[NUM_DIGITS_GF2X_MODULUS] = {0};
+         v[NUM_DIGITS_GF2X_ELEMENT] = {0},
+         s[NUM_DIGITS_GF2X_MODULUS] = {0},
+         f[NUM_DIGITS_GF2X_MODULUS] = {0};
 
    DIGIT mask;
    u[NUM_DIGITS_GF2X_ELEMENT-1] = 0x1;
@@ -497,27 +498,6 @@ void gf2x_transpose_in_place_sparse(int sizeA, POSITION_T A[])
 
 /*----------------------------------------------------------------------------*/
 
-static inline
-int partition (POSITION_T arr[], int lo, int hi)
-{
-   POSITION_T x = arr[hi];
-   POSITION_T tmp;
-   int i = (lo - 1);
-   for (int j = lo; j <= hi - 1; j++)  {
-      if (arr[j] <= x) {
-         i++;
-         tmp = arr[i];
-         arr[i] = arr[j];
-         arr[j] = tmp;
-      }
-   }
-   tmp = arr[i+1];
-   arr[i+1] = arr[hi];
-   arr[hi] = tmp;
-
-   return i+1;
-} // end partition
-
 void gf2x_mod_mul_sparse(int
                          sizeR, /*number of ones in the result, max sizeA*sizeB */
                          POSITION_T Res[],
@@ -526,57 +506,42 @@ void gf2x_mod_mul_sparse(int
                          int sizeB, /*number of ones in B*/
                          const POSITION_T B[])
 {
-
-   for(int i = 0; i< sizeR; i++) {
-      Res[i]= INVALID_POS_VALUE;
-   }
    /* compute all the coefficients, filling invalid positions with P*/
-
-   unsigned i = 0;
-   for(; i < sizeA  && A[i] != INVALID_POS_VALUE; i++) {
-      unsigned j = 0;
-      for (; j < sizeB && B[j] != INVALID_POS_VALUE; j++) {
-         uint32_t prod = ((uint32_t) A[i]) + ((uint32_t) B[j]);
-         Res[i*sizeB+j] = prod >= P ? prod - P : prod;
-      }
-      for (; j < sizeB ; j++) {
-         Res[i*sizeB+j] = INVALID_POS_VALUE;
-      }
+   unsigned lastFilledPos=0;
+   for(int i = 0 ; i < sizeA ; i++){
+     for(int j = 0 ; j < sizeB ; j++){
+          uint32_t prod = ((uint32_t) A[i]) + ((uint32_t) B[j]);
+          prod = ( (prod >= P) ? prod - P : prod);
+       if ((A[i] != INVALID_POS_VALUE) &&
+           (B[i] != INVALID_POS_VALUE)){
+            Res[lastFilledPos] = prod;
+        } else{
+            Res[lastFilledPos] = INVALID_POS_VALUE;
+        }
+        lastFilledPos++;
+     }
    }
-
-   for(; i < sizeA; i++) {
-      for (unsigned j = 0; j < sizeB; j++) {
-         Res[i*sizeB+j] = INVALID_POS_VALUE;
-      }
+   while(lastFilledPos < sizeR){
+        Res[lastFilledPos] = INVALID_POS_VALUE;
+        lastFilledPos++;
    }
-
-   /* sort the result */
-   int stack[sizeR];
-   int hi, lo, pivot, tos = -1;
-   stack[++tos] = 0;
-   stack[++tos] = sizeR-1;
-   while (tos >=0 ) {
-      hi = stack[tos--];
-      lo = stack[tos--];
-      pivot = partition(Res, lo, hi);
-      if ( (pivot-1) > lo) {
-         stack[++tos] = lo;
-         stack[++tos] = pivot-1;
-      }
-      if ( (pivot + 1) < hi) {
-         stack[++tos] = pivot+1;
-         stack[++tos] = hi;
-      }
-   }
-
+   quicksort(Res, sizeR);
    /* eliminate duplicates */
+   POSITION_T lastReadPos = Res[0];
+   int duplicateCount;
    int write_idx = 0;
-   for(unsigned i = 0; i < sizeR-1  && Res[i] != INVALID_POS_VALUE; i++) {
-      if (Res[i] == Res[i+1]) {
-         i++;
-      } else {
-         Res[write_idx] = Res[i];
-         write_idx++;
+   int read_idx = 0;
+   while(read_idx < sizeR  && Res[read_idx] != INVALID_POS_VALUE){
+      lastReadPos = Res[read_idx];
+      read_idx++;
+      duplicateCount=1;
+      while( (Res[read_idx] == lastReadPos) && (Res[read_idx] != INVALID_POS_VALUE)){
+        read_idx++;
+        duplicateCount++;
+      }
+      if (duplicateCount % 2) {
+        Res[write_idx] = lastReadPos;
+        write_idx++;
       }
    }
    /* fill remaining cells with INVALID_POS_VALUE */

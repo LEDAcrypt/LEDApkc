@@ -30,20 +30,19 @@
  *
  **/
 
+
 #include "rng.h"
-#include <stdio.h>
-#include <assert.h>
+
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h> // void srand(unsigned int seed); int rand(void); RAND_MAX
 #include <string.h> // void *memset(void *s, int c, size_t n);
 #define __USE_POSIX199309
 #include <time.h> // struct timespec; clock_gettime(...); CLOCK_REALTIME
-#include <stdio.h>
-#include <string.h>
 
 #include "aes256.h"
 #include "qc_ldpc_parameters.h"
+
 
 /******************************************************************************/
 /*----------------------------------------------------------------------------*/
@@ -82,9 +81,6 @@ void initialize_pseudo_random_generator_seed(int ac, char *av[])
 /*              end PSEUDO-RAND GENERATOR ROUTINES for rnd.h                  */
 /*----------------------------------------------------------------------------*/
 
-
-
-
 AES256_CTR_DRBG_struct  DRBG_ctx;
 
 void    AES256_ECB(unsigned char *key, unsigned char *ctr,
@@ -108,7 +104,9 @@ seedexpander_init(AES_XOF_struct *ctx,
 
    ctx->length_remaining = maxlen;
 
-   memcpy(ctx->key, seed, 32);
+   memset(ctx->key, 0, 32);
+   int max_accessible_seed_len = TRNG_BYTE_LENGTH < 32 ? 32 : TRNG_BYTE_LENGTH;
+   memcpy(ctx->key, seed, max_accessible_seed_len);
 
    memcpy(ctx->ctr, diversifier, 8);
    ctx->ctr[11] = maxlen % 256;
@@ -180,7 +178,6 @@ seedexpander(AES_XOF_struct *ctx, unsigned char *x, unsigned long xlen)
 //    key - 256-bit AES key
 //    ptx - a 128-bit plaintext value
 //    ctx - a 128-bit ciphertext value
-
 
 void
 AES256_ECB(unsigned char *key, unsigned char *ptx, unsigned char *ctx)
@@ -279,8 +276,6 @@ void deterministic_random_byte_generator(unsigned char *const output,
    unsigned char   seed_material[48];
    memset(seed_material, 0x00, 48);
    memcpy(seed_material, seed, seed_length);
-
-
    memset(ctx.Key, 0x00, 32);
    memset(ctx.V, 0x00, 16);
    AES256_CTR_DRBG_Update(seed_material, ctx.Key, ctx.V);
@@ -318,7 +313,6 @@ void deterministic_random_byte_generator(unsigned char *const output,
    ctx.reseed_counter++;
 
 } // end deterministic_random_byte_generator
-
 
 void seedexpander_from_trng(AES_XOF_struct *ctx,
                             const unsigned char *trng_entropy

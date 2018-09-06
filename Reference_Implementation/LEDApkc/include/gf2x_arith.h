@@ -30,8 +30,8 @@
  *
  **/
 
-
 #pragma once
+
 #include "gf2x_limbs.h"
 
 /*----------------------------------------------------------------------------*/
@@ -77,8 +77,8 @@
 
 void gf2x_add(const int nr, DIGIT Res[],
               const int na, const DIGIT A[],
-              const int nb, const DIGIT B[]
-             );
+              const int nb, const DIGIT B[]);
+
 
 void gf2x_mul_comb(const int nr, DIGIT Res[],
                    const int na, const DIGIT A[],
@@ -87,5 +87,6 @@ void gf2x_mul_comb(const int nr, DIGIT Res[],
 
 int gf2x_cmp(const unsigned lenA, const DIGIT A[],
              const unsigned lenB, const DIGIT B[]);
+
 /*----------------------------------------------------------------------------*/
 

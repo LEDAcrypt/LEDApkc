@@ -2,7 +2,7 @@
  *
  * <bf_decoding.c>
  *
- * @version 1.0 (September 2017)
+ * @version 1.0.2 (September 2018)
  *
  * Reference ISO-C99 Implementation of LEDAkem cipher" using GCC built-ins.
  *
@@ -33,15 +33,15 @@
 #include "bf_decoding.h"
 #include "gf2x_arith_mod_xPplusOne.h"
 #include <string.h>
-
-int bf_decoding(DIGIT err[],
+#include <assert.h>
+int bf_decoding(DIGIT out[], // N0 polynomials
                 const POSITION_T HtrPosOnes[N0][DV],
                 const POSITION_T QtrPosOnes[N0][M],
                 DIGIT privateSyndrome[]  //  1 polynomial
                )
 {
-   int unsatParityChecks[N0*P];
-   POSITION_T currQPos[M];
+   int upc[N0*P];
+   POSITION_T currQ_pos[M];
    DIGIT currSyndrome[NUM_DIGITS_GF2X_ELEMENT];
    int check;
    int imax = ITERATIONS_MAX;
@@ -49,12 +49,12 @@ int bf_decoding(DIGIT err[],
 
    do {
       gf2x_copy(currSyndrome, privateSyndrome);
-      memset(unsatParityChecks,0x00,N0*P*sizeof(int));
+      memset(upc,0x00,N0*P*sizeof(int));
       for (int i = 0; i < N0; i++) {
          for (int valueIdx = 0; valueIdx < P; valueIdx++) {
             for(int HtrOneIdx = 0; HtrOneIdx < DV; HtrOneIdx++) {
                if (gf2x_get_coeff(currSyndrome, (HtrPosOnes[i][HtrOneIdx]+valueIdx) % P))
-                  unsatParityChecks[i*P+valueIdx]++;
+                  upc[i*P+valueIdx]++;
             }
          }
       }
@@ -74,6 +74,7 @@ int bf_decoding(DIGIT err[],
          thresh_table_idx = (min_idx +max_idx)/2;
       }
       int corrt_syndrome_based=synd_corrt_vec[thresh_table_idx][1];
+
       //Computation of correlation  with a full Q matrix
       for (int i = 0; i < N0; i++) {
          for (int j = 0; j < P; j++) {
@@ -82,18 +83,18 @@ int bf_decoding(DIGIT err[],
             int correlation =0;
 
             for (int blockIdx = 0; blockIdx < N0; blockIdx++) {
-               endQblockIdx += qBlockWeights[i][blockIdx];
+               endQblockIdx += qBlockWeights[blockIdx][i];
                for (; currQoneIdx < endQblockIdx; currQoneIdx++) {
-                  currQPos[currQoneIdx] = ((QtrPosOnes[i][currQoneIdx]+j) % P) + blockIdx*P;
-                  correlation += unsatParityChecks[currQPos[currQoneIdx]];
+                  currQ_pos[currQoneIdx] = ((QtrPosOnes[i][currQoneIdx]+j) % P) + blockIdx*P;
+                  correlation += upc[currQ_pos[currQoneIdx]];
                }
             }
             /* Correlation based flipping */
             if (correlation > corrt_syndrome_based) {
-               gf2x_toggle_coeff(err+NUM_DIGITS_GF2X_ELEMENT*i, j);
+               gf2x_toggle_coeff(out+NUM_DIGITS_GF2X_ELEMENT*i, j);
                for (int v = 0; v < M; v++) {
-                  int posFlip = currQPos[v] % P;
-                  int blockIndex = currQPos[v] / P;
+                  int posFlip = currQ_pos[v] % P;
+                  int blockIndex = currQ_pos[v] / P;
                   unsigned syndromePosToFlip;
                   for (int HtrOneIdx = 0; HtrOneIdx < DV; HtrOneIdx++) {
                      syndromePosToFlip = (HtrPosOnes[blockIndex][HtrOneIdx] + posFlip )% P;
@@ -111,4 +112,4 @@ int bf_decoding(DIGIT err[],
    } while (imax != 0 && check < NUM_DIGITS_GF2X_ELEMENT);
 
    return (check == NUM_DIGITS_GF2X_ELEMENT);
-}
+}  // end QdecodeSyndromeThresh_bitFlip_sparse

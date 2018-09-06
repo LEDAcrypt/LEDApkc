@@ -1,5 +1,7 @@
 /**
  *
+ * <gf2x_arith.c>
+ *
  * @version 1.0 (September 2017)
  *
  * Reference ISO-C99 Implementation of LEDApkc cipher" using GCC built-ins.
@@ -28,21 +30,9 @@
  *
  **/
 
+
 #include "gf2x_arith.h"
-
-#include <assert.h>
 #include <string.h>  // memset(...)
-
-
-/*----------------------------------------------------------------------------*/
-
-void gf2x_add(const int nr, DIGIT Res[],
-              const int na, const DIGIT A[],
-              const int nb, const DIGIT B[])
-{
-   for (unsigned i = 0; i < nr; i++)
-      Res[i] = A[i] ^ B[i];
-} // end gf2x_add
 
 /*----------------------------------------------------------------------------*/
 
@@ -50,8 +40,6 @@ void gf2x_mul_comb(const int nr, DIGIT Res[],
                    const int na, const DIGIT A[],
                    const int nb, const DIGIT B[])
 {
-   assert(na > 0 && nb > 0 && nr >= na+nb);
-
    int i, j, k;
    DIGIT u, h;
 
@@ -77,6 +65,14 @@ void gf2x_mul_comb(const int nr, DIGIT Res[],
 }
 
 /*----------------------------------------------------------------------------*/
+
+void gf2x_add(const int nr, DIGIT Res[],
+              const int na, const DIGIT A[],
+              const int nb, const DIGIT B[])
+{
+   for (unsigned i = 0; i < nr; i++)
+      Res[i] = A[i] ^ B[i];
+} // end gf2x_add
 
 int gf2x_cmp(const unsigned lenA, const DIGIT A[],
              const unsigned lenB, const DIGIT B[])
