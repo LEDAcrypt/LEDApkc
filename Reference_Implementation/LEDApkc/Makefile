@@ -51,6 +51,11 @@ endif
 endif
 endif
 
+ifndef PREFIX
+PREFIX = /usr/local/
+endif
+
+
   CC = gcc 
 
   CFLAGS = -DCATEGORY=$(SL) -DN0=$(N0) -DCPU_WORD_BITS=64 \
@@ -69,9 +74,26 @@ endif
 $(OBJDIR)/%.o: $(SRCDIR)/%.c 
 	$(CC) -c $(CFLAGS) $(INCLUDES)  $< -o $@ 
 
-.PHONY : all clean
+.PHONY : all static shared clean install
 
-all: $(COBJS) 
-	ar rcs $(OBJDIR)/libLEDApkc_sl$(SL)_N0$(N0).a $(COBJS) 
+all: static shared
+
+static: $(COBJS) 
+	ar rcs $(OBJDIR)/libLEDApkc_sl$(SL)_N0$(N0).a $(COBJS)
+
+shared:
+	$(CC) $(CFLAGS) -fPIC -shared $(INCLUDES) $(SRCDIR)/*.c	-o $(OBJDIR)/libLEDApkc_sl$(SL)_N0$(N0).so
+
 clean:
-	$(RM) $(OBJDIR)/*.o  $(OBJDIR)/libLEDApkc_sl$(SL)_N0$(N0).a
+	$(RM) $(OBJDIR)/*.o  $(OBJDIR)/libLEDApkc_sl$(SL)_N0$(N0).a $(OBJDIR)/libLEDApkc_sl$(SL)_N0$(N0).so
+
+install:
+	cp $(OBJDIR)/libLEDApkc_sl$(SL)_N0$(N0).* $(PREFIX)/lib/
+	ln -sf $(PREFIX)/lib/libLEDApkc_sl$(SL)_N0$(N0).so  $(PREFIX)/lib/libledapkc.so
+	mkdir -p $(PREFIX)/include/libledapkc_sl$(SL)_n0$(N0)
+	cp ./include/*.h $(PREFIX)/include/libledapkc_sl$(SL)_n0$(N0)/
+
+uninstall:
+	rm -f  $(PREFIX)/lib/libLEDApkc_sl$(SL)_N0$(N0).* $(PREFIX)/lib/libledapkc.so
+	rm -rf $(PREFIX)/include/libledapkc_sl$(SL)_n0$(N0)/
+
