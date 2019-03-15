@@ -65,6 +65,7 @@ endif
   INCLUDES = -I./include
   SRCDIR = library
   OBJDIR = bin
+  SONAME = -Wl,-soname,libledapkc_sl$(SL)_n0$(N0).so.1
 
 # Gathers the names of all C files 
     CSRC = $(wildcard $(SRCDIR)/*.c) 
@@ -82,7 +83,7 @@ static: $(COBJS)
 	ar rcs $(OBJDIR)/libLEDApkc_sl$(SL)_N0$(N0).a $(COBJS)
 
 shared:
-	$(CC) $(CFLAGS) -fPIC -shared $(INCLUDES) $(SRCDIR)/*.c	-o $(OBJDIR)/libLEDApkc_sl$(SL)_N0$(N0).so
+	$(CC) $(CFLAGS) $(SONAME) -fPIC -shared $(INCLUDES) $(SRCDIR)/*.c	-o $(OBJDIR)/libLEDApkc_sl$(SL)_N0$(N0).so
 
 clean:
 	$(RM) $(OBJDIR)/*.o  $(OBJDIR)/libLEDApkc_sl$(SL)_N0$(N0).a $(OBJDIR)/libLEDApkc_sl$(SL)_N0$(N0).so
