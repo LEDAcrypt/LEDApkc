@@ -80,21 +80,21 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 all: static shared
 
 static: $(COBJS) 
-	ar rcs $(OBJDIR)/libLEDApkc_sl$(SL)_N0$(N0).a $(COBJS)
+	ar rcs $(OBJDIR)/libLEDApkc_sl$(SL)_n0$(N0).a $(COBJS)
 
 shared:
-	$(CC) $(CFLAGS) $(SONAME) -fPIC -shared $(INCLUDES) $(SRCDIR)/*.c	-o $(OBJDIR)/libLEDApkc_sl$(SL)_N0$(N0).so
+	$(CC) $(CFLAGS) $(SONAME) -fPIC -shared $(INCLUDES) $(SRCDIR)/*.c	-o $(OBJDIR)/libLEDApkc_sl$(SL)_n0$(N0).so.1
 
 clean:
-	$(RM) $(OBJDIR)/*.o  $(OBJDIR)/libLEDApkc_sl$(SL)_N0$(N0).a $(OBJDIR)/libLEDApkc_sl$(SL)_N0$(N0).so
+	$(RM) $(OBJDIR)/*.o  $(OBJDIR)/libLEDApkc_sl$(SL)_n0$(N0).*
 
 install:
-	cp $(OBJDIR)/libLEDApkc_sl$(SL)_N0$(N0).* $(PREFIX)/lib/
-	ln -sf $(PREFIX)/lib/libLEDApkc_sl$(SL)_N0$(N0).so  $(PREFIX)/lib/libledapkc.so
+	cp $(OBJDIR)/libLEDApkc_sl$(SL)_n0$(N0).* $(PREFIX)/lib/
+	ln -sf $(PREFIX)/lib/libLEDApkc_sl$(SL)_n0$(N0).so.1  $(PREFIX)/lib/libledapkc.so
 	mkdir -p $(PREFIX)/include/libledapkc_sl$(SL)_n0$(N0)
 	cp ./include/*.h $(PREFIX)/include/libledapkc_sl$(SL)_n0$(N0)/
 
 uninstall:
-	rm -f  $(PREFIX)/lib/libLEDApkc_sl$(SL)_N0$(N0).* $(PREFIX)/lib/libledapkc.so
+	rm -f  $(PREFIX)/lib/libLEDApkc_sl$(SL)_n0$(N0).* $(PREFIX)/lib/libledapkc.so
 	rm -rf $(PREFIX)/include/libledapkc_sl$(SL)_n0$(N0)/
 
